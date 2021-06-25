@@ -20,9 +20,8 @@ def scrape_all():
         "featured_image": featured_image(browser),
         "facts": mars_facts(),
         "last_modified": dt.datetime.now(),
-        "hemisphere": hemisphere(browser)  
+        "hemispheres": hemispheres(browser)
     }
-
     # Stop webdriver and return data
     browser.quit()
     return data
@@ -104,7 +103,7 @@ if __name__ == "__main__":
     print(scrape_all())
 
 
-def hemisphere(browser):
+def hemispheres(browser):
     url = 'https://marshemispheres.com/'
 
     browser.visit(url)
@@ -122,7 +121,7 @@ def hemisphere(browser):
 
     for j in range(4):
         #hmake the thing 
-        #hemisphere = {}
+        hemisphere = {}
         #run the for function with j
         #browser.find_by_css('a.product-item h1')[j].click()
         #browser.find_by_css('a.product-item h2')[j].click()
@@ -139,13 +138,30 @@ def hemisphere(browser):
         title = browser.find_by_css('h2.title').text
         
         hemisphere['title'] = title
+        hemi_data = scrape_hemisphere(browser.html)
 
-        hemisphere_image_urls.append(hemisphere)
+        hemisphere_image_urls.append(hemi_data)
         #for the hemisphere image, and d) use browser.back() to navigate back to the beginning to get the next hemisphere image.
         browser.back()
 
     return hemisphere_image_urls  
 
+def scrape_hemisphere(html_text):
+
+    hemisphere_soup = soup(html_text, "html.parser")
+
+    try: 
+        title_element = hemisphere_soup.find("h2", class_="title").get_text()
+        sample_element = hemisphere_soup.find("a", text="Sample").get("href")
+    except AttributeError:
+        title_element = None
+
+    hemisphere = {
+        "title": title_element,
+        "img_url": sample_element
+    }
+
+    return hemisphere
 
 
 
